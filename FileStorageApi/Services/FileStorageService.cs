@@ -79,7 +79,7 @@ namespace FileStorageApi.Services
             var fullPath = GetFullPath(path);
 
             Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
-            using(var fs = new FileStream(fullPath, FileMode.Create, FileAccess.Write)) 
+            using(var fs = new FileStream(_filePath, FileMode.Create, FileAccess.Write)) 
             {
                 await fs.CopyToAsync(content);
             }

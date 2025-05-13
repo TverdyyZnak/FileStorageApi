@@ -8,6 +8,8 @@ namespace FileStorageApi.Controllers
 
     public class StorageController : ControllerBase
     {
+        private readonly string _rootPath = Path.Combine(Directory.GetCurrentDirectory(), "Storage");
+
         private readonly IFileStorageService _fileStorageService;
 
         public StorageController(IFileStorageService fileStorageService)
@@ -16,15 +18,14 @@ namespace FileStorageApi.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UploadFile(string filePath)
+        public async Task<IActionResult> UploadFile(IFormFile file)
         {
-            if (!Request.ContentLength.HasValue || Request.ContentLength == 0)
-            {
-                return BadRequest("Ничего не содержит");
-            }
+            if (file == null || file.Length == 0)
+                return BadRequest("Empty file");
 
-            await _fileStorageService.SaveFileAsync(filePath, Request.Body);
-            return Ok();
+            await using var stream = file.OpenReadStream();
+            await _fileStorageService.SaveFileAsync(_rootPath, stream);
+            return Ok("File uploaded");
         }
 
         [HttpGet]
