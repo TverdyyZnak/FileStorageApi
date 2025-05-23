@@ -21,11 +21,18 @@ namespace FileStorageApi.Controllers
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
             if (file == null || file.Length == 0)
-                return BadRequest("Empty file");
+                return BadRequest("File is empty");
 
-            await using var stream = file.OpenReadStream();
-            await _fileStorageService.SaveFileAsync(_rootPath, stream);
-            return Ok("File uploaded");
+            var fileName = Path.GetFileName(file.FileName); // обязательно безопасное имя
+            var path = $"uploads/{fileName}"; // <== вот тут путь должен включать имя файла
+
+            using (var stream = file.OpenReadStream())
+            {
+                await _fileStorageService.SaveFileAsync(path, stream);
+            }
+
+            return Ok("Файл загружен");
+
         }
 
         [HttpGet]
